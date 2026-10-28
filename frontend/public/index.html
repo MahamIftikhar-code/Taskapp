@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Task Board</h1>
+    <form id="task-form" class="add" autocomplete="off">
+      <label class="sr-only" for="task-title">Task title</label>
+      <input id="task-title" name="title" type="text" maxlength="120" placeholder="What needs to be done?" required>
+      <button type="submit">Add task</button>
+    </form>
+  </header>
+
+  <p id="notice" class="notice" role="alert" hidden></p>
+
+  <main class="board">
+    <section class="column column-todo" aria-labelledby="h-todo">
+      <h2 id="h-todo">To do <span class="count" data-count="todo">0</span></h2>
+      <ul class="cards" data-status="todo"></ul>
+    </section>
+    <section class="column column-doing" aria-labelledby="h-doing">
+      <h2 id="h-doing">In progress <span class="count" data-count="doing">0</span></h2>
+      <ul class="cards" data-status="doing"></ul>
+    </section>
+    <section class="column column-done" aria-labelledby="h-done">
+      <h2 id="h-done">Done <span class="count" data-count="done">0</span></h2>
+      <ul class="cards" data-status="done"></ul>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

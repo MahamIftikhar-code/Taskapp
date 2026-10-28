@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: deploy-taskapp
+  namespace: taskapp
+spec:
+  entrypoint: main
+  serviceAccountName: deployer
+  arguments:
+    parameters:
+      - name: image-tag
+        value: latest
+      - name: dockerhub-user
+        value: mahamiftikhar
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: deploy-backend
+            template: set-image
+            arguments:
+              parameters:
+                - name: deployment
+                  value: backend
+                - name: image
+                  value: "{{workflow.parameters.dockerhub-user}}/taskapp-backend:{{workflow.parameters.image-tag}}"
+          - name: deploy-frontend
+            template: set-image
+            arguments:
+              parameters:
+                - name: deployment
+                  value: frontend
+                - name: image
+                  value: "{{workflow.parameters.dockerhub-user}}/taskapp-frontend:{{workflow.parameters.image-tag}}"
+          - name: smoke-test
+            dependencies: [deploy-backend, deploy-frontend]
+            template: smoke-test
+
+    - name: set-image
+      inputs:
+        parameters:
+          - name: deployment
+          - name: image
+      container:
+        image: alpine/k8s:1.30.2
+        command: [sh, -c]
+        args:
+          - |
+            kubectl -n taskapp set image deployment/{{inputs.parameters.deployment}} \
+              {{inputs.parameters.deployment}}={{inputs.parameters.image}} &&
+            kubectl -n taskapp rollout status deployment/{{inputs.parameters.deployment}} --timeout=180s
+
+    - name: smoke-test
+      container:
+        image: curlimages/curl:8.10.1
+        command: [sh, -c]
+        args:
+          - curl -fsS http://frontend.taskapp.svc.cluster.local/api/health
