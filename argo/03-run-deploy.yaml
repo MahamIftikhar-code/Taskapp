@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: deploy-taskapp-
+  namespace: taskapp
+spec:
+  workflowTemplateRef:
+    name: deploy-taskapp
+  arguments:
+    parameters:
+      - name: image-tag
+        value: 0a0c93a
